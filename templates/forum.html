@@ -1,0 +1,114 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div>
+<div class="bg-yoda bg-made" style="background-image: url('/static/img/bg-05.jpg'); z-index: -9999;">
+    <div class="container forum-container" style="z-index: 999999;">
+        <head>
+            <h1>In forum, you must share</h1>
+          </head>
+          <main style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 2rem;">
+            <section>
+              <div style="margin-top: 2rem;">
+                <h2 style="display: inline;">Latest Threads:</h2>
+                <p class="btn btn-black" style="display: inline; float: right;"><a style="color: white;" href="/forum/thread/create">Create New Thread</a></p>
+                <hr>
+                <ul id="unordered">
+                  {% for thread in threads %}
+                    <li class="fadeIn animated {{ 'bg-success' if thread['important'] == 1 }}">
+                      <a href="/forum/thread/{{thread['id']}}"><h6>{{thread["title"]}}<small style="float: right;">{{thread["username"]}}</small></h6></a>
+                      <hr>
+                    </li>
+                  {% endfor %}
+                </ul>
+                <p><a href="#" class="" id="moreClick">Load more</a></p>
+              </div>
+            </section>
+            <section>
+              <div style="margin-top: 2rem;">
+                <h2 style="display: inline;">Latest Comments:</h2>
+                <hr>
+                <ul id="unordered2">
+                  {% for comment in comments %}
+                    <li class="fadeIn animated">
+                      <a href="/forum/thread/{{comment['thread']}}"><h6>{{comment["body"][0:50]}}<small style="float: right;">{{comment["username"]}}</small></h6></a>
+                      <hr>
+                    </li>
+                  {% endfor %}
+                </ul>
+                <p><a href="#" class="" id="moreClick2">Load more</a></p>
+              </div>
+            </section>
+          </main>
+    </div>
+  </div></div>
+<script>
+  function strip(str) {
+    if ((str===null) || (str===''))
+        return false;
+    else
+      str = str.toString();
+    return str.replace(/<[^>]*>/g, '');
+  }
+  count = 5
+  commcount = 5
+  flagThread = false
+  flagComment = false
+  $("#moreClick").on("click", function(e) {
+    e.preventDefault();
+    if (flagThread) {
+      return;
+    } else {
+      fetch(`/api/forum/thread?count=5&offset=${count}`)
+      .then(response => response.json())
+      .then(data => {
+        for(let i = 0; i < data.content.length; i++) {
+        let item = data.content[i]
+        $('#unordered').append(
+          `<li class="fadeIn animated">
+            <a href="/forum/thread/${item.id}"><h6>${item.title}<small style="float: right;">${item.username}</small></h6></a>
+            <hr>
+          </li>`
+        );
+        }
+        if(data.content.length < 5) {
+          flagThread=true;
+          const but = document.querySelector('#moreClick');
+          but.innerHTML = "We have run out ouf things to talk about... Guess its time we seperate our ways"
+          but.setAttribute('class', 'disabled')
+        }
+        count += data.content.length
+      })
+    }
+    
+  });
+  $("#moreClick2").on("click", function(e) {
+    e.preventDefault();
+    if (flagComment) {
+      return;
+    } else {
+      fetch(`/api/forum/comment?count=5&offset=${commcount}`)
+      .then(response => response.json())
+      .then(data => {
+        for(let i = 0; i < data.content.length; i++) {
+        let item = data.content[i]
+        let bod = strip(item.body.slice(0, 50));
+        $('#unordered2').append(
+          `<li class="fadeIn animated">
+            <a href="/forum/thread/${item.thread}"><h6>${bod}<small style="float: right;">${item.username}</small></h6></a>
+            <hr>
+          </li>`
+        );
+        }
+        if(data.content.length < 5) {
+          flagComment=true;
+          const but = document.querySelector('#moreClick2');
+          but.innerHTML = "Aaaaand, thats all of it!"
+          but.setAttribute('class', 'disabled')
+        }
+        commcount += data.content.length
+      })
+    }
+  });
+</script>
+{% endblock %}

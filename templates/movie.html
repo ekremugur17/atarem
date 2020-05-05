@@ -1,0 +1,93 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="container">
+  <div class="movie_card" id="bright">
+    <div class="info_section">
+      <div class="movie_header">
+        <h1>{{movie['title']}}</h1>
+        <h4>{{movie['year']}}, {% for director in movie['directors'] %} {{director}}{% if loop.index != loop.length %},
+          {% endif %} {% endfor %}</h4>
+      </div>
+      <div class="movie_desc">
+        <p class="text">
+          {{movie['simpleplot']}}
+        </p>
+        <span class="minutes">{{movie['runtime']}}</span>
+        <p class="type">{% for genre in movie['genres'] %} {{genre}}{% if loop.index != loop.length %},
+          {% endif %} {% endfor %}</p>
+      </div>
+    </div>
+    <div class="blur_back" style="background-image: url({{movie['urlposter']}});">
+    </div>
+  </div>
+  <div style="display: flex;">
+    <form form class="w-bg" action="" method="post" >
+      <input type="submit" value="Add to my watchlist" class="btn btn-primary btn-black" />
+      <input type="hidden" value="add" name="formname" /><br>
+      <input type="radio" name="check" value="ok" style="text-align: center; vertical-align: middle;" checked >Watched </input><br>
+      <input type="radio" name="check" value="nope" style="text-align: center; vertical-align: middle;" >Not Watched </input><br>
+      
+      <div id="delete" class="w-bg">
+        <p class="btn btn-black">Delete</p>
+      </div>
+    </form>
+    
+    <div class="w-bg">
+      <h3>IMDB Rating: {{movie["rating"]}}</h3>
+      <h3>User Rating: {% if movie["overallrating"] > 0 %} {{'%.2f' % movie["overallrating"]}}{%else%} 0{%endif%}/5 out of {{movie["votes"]}} votes.</h3>
+    </div>
+    <div>
+      <h3 class="w-bg">Vote Now!
+      <fieldset id="rating" class="rating">
+          <input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+          <input type="radio" id="star4half" name="rating" value="4.5" /><label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+          <input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+          <input type="radio" id="star3half" name="rating" value="3.5" /><label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+          <input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+          <input type="radio" id="star2half" name="rating" value="2.5" /><label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+          <input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+          <input type="radio" id="star1half" name="rating" value="1.5" /><label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+          <input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+          <input type="radio" id="starhalf" name="rating" value="0.5" /><label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+        </fieldset>  
+      </h3>
+    </div>
+   
+  </div>
+  <form name="note"  method="post" style="text-align: center;" >
+      
+    <input type="hidden" value="deneme" name="user_id" />
+    <textarea rows = "4" cols = "20" name = "text" style="float:center; border: 1px solid #888;">
+      Leave a note(max 200 )
+   </textarea>
+   <br>
+    <input  type="submit" value="Submit your note" class="btn btn-primary btn-black" style="text-align: center;" /> 
+    <input type="hidden" value="text" name="formname" />
+  </form>
+</div>
+<script>
+  const id = {{movie["id"]}}
+  const reload = false;
+  $('#rating').change(function(e) {
+    $.ajax({
+      type: "POST",
+      url: `/api/movie/rate?id=${id}&rating=${e.target.value}`,
+      success: function() {
+        console.log("success");
+        location.reload();
+      }
+    })
+  });
+  $('#delete').on('click', () => {
+    $.ajax({
+      type: "POST",
+      url: `/api/movie/delete?id=${id}`,
+      success: () => {
+        console.log('success');
+        location.replace('http://itucsdb1965.herokuapp.com/movies')
+      }
+    })
+  });
+</script>
+{% endblock %}

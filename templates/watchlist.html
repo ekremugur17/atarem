@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<h1>Hello
+  {{username}}
+  <br /></h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/watchlist.css') }}">
+
+<table id="customers">
+  <br />
+  <tr>
+    <th>Watchlist</th>
+    <th>Avaible platforms</th>
+    <th>Order</th>
+    <th>Notes</th>
+    <th>Status</th>
+  </tr>
+  {% for title in title %}
+  <tr>
+    <form action="" method="post">
+      <input type="hidden" value="{{title[1]}}" name="movie_id" />
+      <input type="hidden" value="{{title[2]}}" name="type" />
+      <input type="hidden" value="delete" name="formname" />
+
+      {% if title[0]!="No movie has been added" %}
+      <td>{{title[0]}}<input type="submit" value="Delete from my watchlist" class="btn btn-primary btn-black"
+          style="float: right;" /> </td>
+      
+    </form>
+    <td>{{stream}}</td>
+
+    <td>
+
+
+      <form name="plus" type="submit" method="post">
+        <p> {{title[3]}} </p>
+        <input type="hidden" value="{{title[1]}}" name="movie_id" />
+        <input type="submit" value="+" name="plus" class="btn btn-primary btn-black" style="float: right;" />
+        <input type="submit" value="-" name="minus" class="btn btn-primary btn-black" style="float: right;" />
+        <input type="hidden" value="order" name="formname" />
+
+      </form>
+    </td>
+    <td>
+           {{title[4]}}
+
+    </td>
+    <td>
+      {% if title[5]==1 %}
+        Watched  
+      {% else %}
+        Not watched
+      {% endif %}
+      
+    </td>
+
+    {% endif %}
+  </tr>
+
+  {% endfor %}
+</table>
+
+
+{% endblock %}
